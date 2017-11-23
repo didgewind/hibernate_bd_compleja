@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="profe.hjs.model">
+
+    <class name="Empleado" table="empleados">
+        <id name="cif" column="cif" type="string">
+            <!-- <generator class="native"/>  -->
+        </id>
+        <property name="nombre"/>
+        <property name="apellidos"/>
+        <property name="edad"/>
+
+	<!-- one-to-many bidireccional con Nómina (FK)-->
+	<!-- el primero es el original, utilizado con la app normal, el segundo cuando invoco
+		 métodos de pruebas -->
+		<set name="nominas" inverse="true" order-by="fecha asc" cascade="all,delete-orphan">
+	<!--	<set name="nominas" inverse="true" order-by="fecha asc">-->
+		    <key column="id_empleado"/>
+		    <one-to-many class="Nomina"/>
+		</set>
+		
+		<!-- many-to-one unidireccional con Direccion (FK) -->
+	    <many-to-one name="direccion" lazy="false" cascade="save-update"
+	        column="direccion"
+	        class="Direccion"/>
+	        
+	    <!-- one-to-one bidireccional con Empleado (FK, yo tengo la FK) -->
+		<many-to-one name="tutor"
+			column="tutor"
+			class="Empleado"
+			unique="true"/>
+
+	    <!-- one-to-one bidireccional con Empleado (parte sin FK) -->
+		<one-to-one name="tuteloA"
+			property-ref="tutor"/>
+ 		
+	<!-- many-to-many o one-to-many (no entidad), depende de la pk de emp_dir_mail
+			(si es sólo dir_email entonces es one-to-many, como en este caso)-->
+        <set name="dirEmails" table="dir_email" cascade="all,merge,delete-orphan">
+            <key column="cif"/>
+            <element type="string" column="dir_email"/> 
+        </set>
+
+    </class>
+
+</hibernate-mapping>
+

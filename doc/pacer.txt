@@ -1,0 +1,6 @@
++ Documento con los distintos tipos de relaciones implementados a nivel de bd 
+
++ Repasar la creación de la bd para comprobar que las restricciones en las fk (principalmente de las
+join table) se ajustan a la cardinalidad de las relaciones.
+
++ Repasar el limpiaEmpleado para ver qué podría hacer hibernate automáticamente (con el cascade)

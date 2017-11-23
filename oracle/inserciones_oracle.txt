@@ -1,0 +1,96 @@
+-- INSERCIONES --
+
+INSERT INTO direcciones (id, calle, cp) VALUES
+(1, 'Carrasco, 8', 23443);
+INSERT INTO direcciones (id, calle, cp) VALUES
+(2, 'Virgen del Amor, 75', 20067);
+INSERT INTO direcciones (id, calle, cp) VALUES
+(3, 'Bailén, 7', 21331);
+
+INSERT INTO emp (cif, nombre, apellidos, edad, direccion, tutor) VALUES
+('34334789H', 'Antonio', 'Martín', 23, 1, null);
+INSERT INTO emp (cif, nombre, apellidos, edad, direccion, tutor) VALUES
+('21094387T', 'Juan', 'González', 40, 2, '34334789H');
+INSERT INTO emp (cif, nombre, apellidos, edad, direccion, tutor) VALUES
+('01293474E', 'Isabel', 'Fuentes', 18, 3, '21094387T');
+INSERT INTO emp (cif, nombre, apellidos, edad, direccion, tutor) VALUES
+('23948745F', 'Lucille', 'King', 25, 1, '01293474E');
+INSERT INTO emp (cif, nombre, apellidos, edad, direccion, tutor) VALUES
+('40948574G', 'Neo', 'Preno', 12, 1, '23948745F');
+
+INSERT INTO salas (id, nombre, capacidad) VALUES
+('SLPIT', 'Sala Pitágoras', 60),
+('SLSOC', 'Sala Sócrates', 35),
+('SLARI', 'Sala Aristóteles', 20);
+
+INSERT INTO eventos (title, fecha) VALUES
+('Cumpleaños de Neo', '2010-04-10'),
+('Planes de Previsión', '2010-04-25'),
+('Revisión de Proyectos', '2010-06-04');
+
+INSERT INTO nominas (fecha, bruto, id_empleado) VALUES
+('2009-11-01', 3015.50, '34334789H'),
+('2009-11-01', 3015.50, '21094387T'),
+('2009-11-01', 3015.50, '01293474E'),
+('2009-12-01', 3015.50, '34334789H'),
+('2009-12-01', 3015.50, '21094387T'),
+('2009-12-01', 3015.50, '01293474E'),
+('2010-01-01', 3215.50, '34334789H'),
+('2010-01-01', 3215.50, '21094387T'),
+('2010-01-01', 3215.50, '01293474E'),
+('2010-02-01', 3215.50, '34334789H'),
+('2010-02-01', 3215.50, '21094387T'),
+('2010-02-01', 3215.50, '01293474E'),
+('2010-01-01', 1240.50, '23948745F'),
+('2010-02-01', 1240.50, '23948745F'),
+('2010-02-01',  950.50, '40948574G');
+
+INSERT INTO ordenadores VALUES
+('PD001'),
+('PD002'),
+('PD003');
+
+INSERT INTO teclados VALUES
+('PD001', 45),
+('PD002', 50),
+('PD003', 45);
+
+INSERT INTO regalos (descr, para) VALUES
+('Jamón Ibérico Extremeñu', '34334789H'),
+('PlayStation 3', '21094387T'),
+('Tv Plasma', '01293474E'),
+('Fabes Asturianes', '23948745F'),
+('Tarjeta Felicitación', '40948574G');
+
+INSERT INTO empleado_evento (cif, id_evento) VALUES
+('01293474E', 1),
+('23948745F', 1),
+('40948574G', 1),
+('01293474E', 2),
+('34334789H', 2),
+('21094387T', 2),
+('23948745F', 3),
+('40948574G', 3),
+('01293474E', 3),
+('34334789H', 3),
+('21094387T', 3);
+
+INSERT INTO evento_sala (id_evento, id_sala) VALUES
+(1, 'SLPIT'),
+(2, 'SLPIT');
+
+INSERT INTO ordenador_empleado (id_ordenador, cif) VALUES
+('PD001', '34334789H'),
+('PD002', '01293474E'),
+('PD003', '23948745F');
+
+INSERT INTO dir_email (cif, dir_email) VALUES
+('34334789H', 'antoniomartin@mazarredos.com'),
+('34334789H', 'jefazo@mazarredos.com'),
+('21094387T', 'juangonzalez@mazarredos.com'),
+('01293474E', 'isabelfuentes@mazarredos.com'),
+('23948745F', 'lucilleking@mazarredos.com'),
+('40948574G', 'neopreno@mazarredos.com');
+
+SET foreign_key_checks = 1;
+

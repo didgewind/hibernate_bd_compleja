@@ -1,0 +1,14 @@
+asociaciones y cardinalidades en la bd
+======================================
+
+* 1-1 con clave externa. La FK es unique
+
+* 1-1 con la misma clave primaria
+
+* 1-1 con join table. La pk en la join table es una de las dos, la otra es unique
+
+* N-1 con FK. La FK no es unique
+
+* N-1 con join table. La FK correspondiente a la parte N es la clave primaria.
+
+* N-N con join table. La PK es la combinación de las dos.

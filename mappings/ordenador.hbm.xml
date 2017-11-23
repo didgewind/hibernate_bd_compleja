@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="profe.hjs.model">
+
+    <class name="Ordenador" table="ordenadores">
+        <id name="id"/>
+
+		<!-- one to one con teclado en sk (pk del ordenador) -->
+	    <one-to-one name="teclado"
+	        class="Teclado"
+	        cascade="all"/>
+
+		<!-- one to one con empleado en jt unidireccional -->
+		<join table="ordenador_empleado" optional="true">
+        	<key column="id_ordenador" unique="true"/>
+		    <many-to-one name="empleado" lazy="false"
+		        column="cif"
+		        not-null="true"
+	    	    unique="true"/>
+	   	</join>
+
+    </class>
+
+</hibernate-mapping>
+

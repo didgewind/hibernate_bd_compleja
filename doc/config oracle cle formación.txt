@@ -1,0 +1,47 @@
+sqlplus system/SYSTEM
+
+ALTER USER HR IDENTIFIED BY HR;
+ALTER USER HR ACCOUNT UNLOCK;
+CONNECT HR/HR
+SELECT * FROM TAB;
+
+CREATE TABLE emp_man 
+(cif VARCHAR(9) NOT NULL,
+nombre VARCHAR(20), 
+apellidos VARCHAR(20), 
+edad INTEGER,
+primary key (cif));
+
+INSERT INTO emp_man (cif, nombre, apellidos, edad) VALUES
+('34334789H', 'Antonio', 'Martín', 23);
+INSERT INTO emp_man (cif, nombre, apellidos, edad) VALUES
+('21094387T', 'Juan', 'González', 40  );
+INSERT INTO emp_man (cif, nombre, apellidos, edad) VALUES
+('01293474E', 'Isabel', 'Fuentes', 18 );
+INSERT INTO emp_man (cif, nombre, apellidos, edad) VALUES
+('23948745F', 'Lucille', 'King', 25   );
+INSERT INTO emp_man (cif, nombre, apellidos, edad) VALUES
+('40948574G', 'Neo', 'Preno', 12      );
+
+COMMIT;
+
+
+	<bean id="emDSOracle" class="org.apache.commons.dbcp2.BasicDataSource"
+		lazy-init="true" destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin:@localhost:1521:xe" />
+		<property name="username" value="HR" />
+		<property name="password" value="HR" />
+	</bean>
+
+	<!-- JPA -->
+	<bean id="miEMF"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="emDSOracle" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property name="showSql" value="true" />
+				<property name="databasePlatform" value="org.hibernate.dialect.OracleDialect" />
+			</bean>
+		</property>
+	</bean>

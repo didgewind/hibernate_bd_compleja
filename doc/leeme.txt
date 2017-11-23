@@ -1,0 +1,31 @@
+Aplicación que gestiona una bd con un montón de tablas y relaciones entre dichas tablas. Al ser una bd de
+ejemplo, virtualmente muestra todas las posibles relaciones entre entidades (entre tablas) para estudiar
+cómo gestionar esas relaciones en hibernate y jpa.
+
+En asociaciones de la aplicación.txt se especifican todas las asociaciones que existen.
+
+La entidad Regalo no se encuentra mapeada en un .xml, sino que utiliza anotaciones jpa.
+
+Utilizamos Hibernate 3
+
+Utilizamos HibernateUtil para interaccionar con la factoría de sesiones y las sesiones.
+
+El método go del Gestor inicia una sesión nueva cada vez que se elige una opción del menú (con getCurrentSession),
+inicia una transacción y hace commit o rollback al final (con lo que se cierra la sesión automáticamente).
+
+El dao utiliza también HibernateUtil cada vez que necesita tirar de la sesión actual, por lo que siempre
+obtiene la sesión con la transacción iniciada por el gestor.
+
+HibernateUtil declara varios métodos para trabajar con una sesión por petición (haciendo
+un getCurrentSession para empezar y luego invocando de nuevo getCurrentSession o getSession
+hasta que cerremos la transacción) o con una sesión extendida (con openSession y luego
+getSession). La clase está documentada.
+
+En Gestor tenemos tres métodos: go(), para trabajar con la bd por menú, pruebas, para realizar
+diferentes pruebas (aún no documentadas) y pruebasOpenSession para trabajar con una sesión
+extendida (el método está autodocumentado).
+
+Es interesante hacer notar que el modificaEmpleado del dao debe utilizar un update cuando
+hacemos la prueba de modificar un empleado. Como su colección de dir_emails es nula,
+al hacer el commit de la transacción se eliminan los emails asociados en la tabla de
+dir_emails. Sin embargo, si usamos un merge en vez de un update nos salta una excepción.

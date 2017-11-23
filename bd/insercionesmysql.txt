@@ -1,0 +1,114 @@
+use empleados_compleja;
+
+## Borrado de tablas
+
+SET foreign_key_checks = 0;
+
+DELETE FROM empleados;
+DELETE FROM eventos;
+DELETE FROM salas;
+DELETE FROM nominas;
+DELETE FROM ordenadores;
+DELETE FROM teclados;
+DELETE FROM direcciones;
+DELETE FROM regalos;
+DELETE FROM empleado_evento;
+DELETE FROM evento_sala;
+DELETE FROM ordenador_empleado;
+DELETE FROM dir_email;
+ALTER TABLE direcciones AUTO_INCREMENT= 4;
+ALTER TABLE eventos AUTO_INCREMENT= 4;
+ALTER TABLE regalos AUTO_INCREMENT= 6;
+ALTER TABLE nominas AUTO_INCREMENT= 16;
+
+
+## INSERCIONES ##
+
+INSERT INTO direcciones (id, calle, cp) VALUES
+(1, "Carrasco, 8", 23443),
+(2, "Virgen del Amor, 75", 20067),
+(3, "Bailén, 7", 21331);
+
+INSERT INTO salas (id, nombre, capacidad) VALUES
+("SLPIT", "Sala Pitágoras", 60),
+("SLSOC", "Sala Sócrates", 35),
+("SLARI", "Sala Aristóteles", 20);
+
+INSERT INTO empleados (cif, nombre, apellidos, edad, direccion, tutor) VALUES
+("34334789H", "Antonio", "Martín", 23, 1, null),
+("21094387T", "Juan", "González", 40, 2, "34334789H"),
+("01293474E", "Isabel", "Fuentes", 18, 3, "21094387T"),
+("23948745F", "Lucille", "King", 25, 1, "01293474E"),
+("40948574G", "Neo", "Preno", 12, 1, "23948745F");
+
+INSERT INTO eventos (id, title, fecha) VALUES
+(1, "Cumpleaños de Neo", "2010-04-10"),
+(2, "Planes de Previsión", "2010-04-25"),
+(3, "Revisión de Proyectos", "2010-06-04");
+
+INSERT INTO nominas (id, fecha, bruto, id_empleado) VALUES
+(1, "2009-11-01", 3015.50, "34334789H"),
+(2, "2009-11-01", 3015.50, "21094387T"),
+(3, "2009-11-01", 3015.50, "01293474E"),
+(4, "2009-12-01", 3015.50, "34334789H"),
+(5, "2009-12-01", 3015.50, "21094387T"),
+(6, "2009-12-01", 3015.50, "01293474E"),
+(7, "2010-01-01", 3215.50, "34334789H"),
+(8, "2010-01-01", 3215.50, "21094387T"),
+(9, "2010-01-01", 3215.50, "01293474E"),
+(10, "2010-02-01", 3215.50, "34334789H"),
+(11, "2010-02-01", 3215.50, "21094387T"),
+(12, "2010-02-01", 3215.50, "01293474E"),
+(13, "2010-01-01", 1240.50, "23948745F"),
+(14, "2010-02-01", 1240.50, "23948745F"),
+(15, "2010-02-01",  950.50, "40948574G");
+
+INSERT INTO ordenadores VALUES
+("PD001"),
+("PD002"),
+("PD003");
+
+INSERT INTO teclados VALUES
+("PD001", 45),
+("PD002", 50),
+("PD003", 45);
+
+INSERT INTO regalos (id, descr, para) VALUES
+(1, "Jamón Ibérico Extremeñu", "34334789H"),
+(2, "PlayStation 3", "21094387T"),
+(3, "Tv Plasma", "01293474E"),
+(4, "Fabes Asturianes", "23948745F"),
+(5, "Tarjeta Felicitación", "40948574G");
+
+INSERT INTO empleado_evento (cif, id_evento) VALUES
+("01293474E", 1),
+("23948745F", 1),
+("40948574G", 1),
+("01293474E", 2),
+("34334789H", 2),
+("21094387T", 2),
+("23948745F", 3),
+("40948574G", 3),
+("01293474E", 3),
+("34334789H", 3),
+("21094387T", 3);
+
+INSERT INTO evento_sala (id_evento, id_sala) VALUES
+(1, "SLPIT"),
+(2, "SLPIT");
+
+INSERT INTO ordenador_empleado (id_ordenador, cif) VALUES
+("PD001", "34334789H"),
+("PD002", "01293474E"),
+("PD003", "23948745F");
+
+INSERT INTO dir_email (cif, dir_email) VALUES
+("34334789H", "antoniomartin@mazarredos.com"),
+("34334789H", "jefazo@mazarredos.com"),
+("21094387T", "juangonzalez@mazarredos.com"),
+("01293474E", "isabelfuentes@mazarredos.com"),
+("23948745F", "lucilleking@mazarredos.com"),
+("40948574G", "neopreno@mazarredos.com");
+
+SET foreign_key_checks = 1;
+

@@ -1,0 +1,21 @@
+C:\Users\CLE>sqlplus system/SYSTEM
+
+SQL*Plus: Release 11.2.0.2.0 Production on Lun Oct 27 17:46:35 2014
+
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+
+SQL> ALTER USER HR IDENTIFIED BY HR;
+
+User altered.
+
+SQL> ALTER USER HR ACCOUNT UNLOCK;
+
+User altered.
+
+SQL> CONNECT HR/HR
+Connected.
+SQL> DESC EMPLOYEES

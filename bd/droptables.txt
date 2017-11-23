@@ -1,0 +1,14 @@
+use empleados;
+
+drop table dir_email;
+drop table evento_sala;
+drop table empleado_evento;
+drop table ordenador_empleado;
+drop table teclados;
+drop table ordenadores;
+drop table regalos;
+drop table salas;
+drop table eventos;
+drop table nominas;
+drop table empleados;
+drop table direcciones;

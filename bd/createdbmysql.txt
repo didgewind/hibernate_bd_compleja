@@ -1,0 +1,88 @@
+drop database if exists empleados_compleja;
+
+create database if not exists empleados_compleja;
+use empleados_compleja;
+#SET storage_engine=INNODB;
+
+## CREATES ##
+
+# Tablas de entidades
+
+CREATE TABLE IF NOT EXISTS direcciones
+(id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+calle VARCHAR(50),
+cp INTEGER);
+
+CREATE TABLE IF NOT EXISTS salas
+(id VARCHAR(5) NOT NULL PRIMARY KEY,
+nombre VARCHAR(50),
+capacidad INTEGER);
+
+CREATE TABLE IF NOT EXISTS empleados 
+(cif VARCHAR(9) NOT NULL, 
+nombre VARCHAR(20), 
+apellidos VARCHAR(20), 
+edad INTEGER, 
+direccion INTEGER,
+tutor VARCHAR(9) UNIQUE,
+FOREIGN KEY (direccion) REFERENCES direcciones(id),
+FOREIGN KEY (tutor) REFERENCES empleados(cif),
+primary key (cif));
+
+CREATE TABLE IF NOT EXISTS eventos 
+(id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+title VARCHAR(30),
+fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+
+CREATE TABLE IF NOT EXISTS nominas 
+(id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+bruto FLOAT,
+id_empleado VARCHAR(9) NOT NULL,
+FOREIGN KEY (id_empleado) REFERENCES empleados(cif));
+
+CREATE TABLE IF NOT EXISTS ordenadores 
+(id VARCHAR(5) NOT NULL PRIMARY KEY);
+
+CREATE TABLE IF NOT EXISTS regalos 
+(id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+descr TEXT,
+para VARCHAR(9) UNIQUE,
+FOREIGN KEY (para) REFERENCES empleados(cif));
+
+CREATE TABLE IF NOT EXISTS teclados
+(id VARCHAR(5) NOT NULL PRIMARY KEY,
+teclas INTEGER DEFAULT 45,
+FOREIGN KEY (id) REFERENCES ordenadores(id));
+
+CREATE TABLE IF NOT EXISTS dir_email
+(dir_email varchar(100) NOT NULL,
+cif varchar(9) NOT NULL,
+FOREIGN KEY (cif) REFERENCES empleados(cif),
+PRIMARY KEY (dir_email));
+
+
+# Tablas de relaciones
+
+CREATE TABLE IF NOT EXISTS empleado_evento
+(cif varchar(9) NOT NULL,
+id_evento INTEGER NOT NULL,
+FOREIGN KEY (cif) REFERENCES empleados(cif),
+FOREIGN KEY (id_evento) REFERENCES eventos(id),
+PRIMARY KEY (cif, id_evento));
+
+CREATE TABLE IF NOT EXISTS evento_sala
+(id_evento INTEGER NOT NULL,
+id_sala varchar(5) NOT NULL,
+FOREIGN KEY (id_evento) REFERENCES eventos(id),
+FOREIGN KEY (id_sala) REFERENCES salas(id),
+PRIMARY KEY (id_evento));
+
+CREATE TABLE IF NOT EXISTS ordenador_empleado
+(id_ordenador VARCHAR(5) NOT NULL,
+cif varchar(9) NOT NULL UNIQUE,
+FOREIGN KEY (cif) REFERENCES empleados(cif),
+FOREIGN KEY (id_ordenador) REFERENCES ordenadores(id),
+PRIMARY KEY (id_ordenador));
+
+grant all on empleados_compleja.* to maza@localhost identified by 'maza';

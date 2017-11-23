@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="profe.hjs.model">
+
+	<class name="Teclado" table="teclados">
+	    <id name="id" column="id">
+	        <generator class="foreign">
+	            <param name="property">ordenador</param>
+	        </generator>
+	    </id>
+	    
+	    <property name="teclas" />
+	    
+		<!-- one to one con ordenador en sk (pk del ordenador) -->
+	    <one-to-one name="ordenador"
+	    	class="Ordenador"
+	        constrained="true"/>
+	</class>
+
+</hibernate-mapping>
+

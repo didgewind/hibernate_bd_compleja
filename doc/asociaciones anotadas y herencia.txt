@@ -1,0 +1,224 @@
+YA PASADO AL DOCUMENTO APUNTES HIBERNATE PROPIOS.ODT (LO MANTENGO PORQUE S”LO COPI… EL C”DIGO Y PUEDE QUE FALTE ALGO)
+
+ASOCIACIONES ANOTADAS
+=====================
+
+Many to Many (Evento - Empleado)
+--------------------------------
+
+	@ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name="empleado_evento",
+        joinColumns=@JoinColumn(name="id_evento"),
+        inverseJoinColumns=@JoinColumn(name="cif")
+    )
+    public Set<Empleado> getEmpleados() {
+    	...
+
+	
+	@ManyToMany(fetch = FetchType.EAGER,
+		mappedBy = "empleados")
+    public Set<Evento> getEventos() {
+    	...
+
+
+
+Many to One. 
+-----------
+
+* Sin tabla join
+
+- Unidireccional (empleado - direcci√≥n)
+
+    @ManyToOne( cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER )
+    @JoinColumn(name="direccion")
+    public Direccion getDireccion() {
+
+- Bidireccional (empleado - n√≥mina)
+
+    @OneToMany(mappedBy="empleado")
+    public Set<Nomina> getNominas() {
+    	...
+
+    @ManyToOne(fetch = FetchType.EAGER )
+    @JoinColumn(name="id_empleado")
+    public Empleado getEmpleado() {
+    	...
+
+
+* Con join table (habitual cuando la relaci√≥n es opcional). Evento - Sala
+
+    @ManyToOne
+    @JoinTable(
+            name="evento_sala",
+            joinColumns = @JoinColumn( name="id_evento"),
+            inverseJoinColumns = @JoinColumn( name="id_sala")
+    )
+    public Sala getSala() {
+    	...
+
+- Bidireccional
+
+
+    @OneToMany(mappedBy = "sala")
+    public Set<Evento> getEventos() {
+    	...
+
+One to Many unidireccional (Evento - Sala)
+------------------------------------------
+
+* Con join table
+
+    @OneToMany
+    @JoinTable(
+            name="evento_sala",
+            joinColumns = @JoinColumn( name="id_sala"),
+            inverseJoinColumns = @JoinColumn( name="id_evento")
+    )
+    public Set<Evento> getEventos() {
+
+
+One to One
+----------
+
+* Con clave primaria externa
+
+Dos ejemplos, el primero con tablas diferentes (regalo -> empleado)
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="para", unique=true)
+	public Empleado getPara() {
+		return para;
+	}
+
+El segundo, con la misma tabla y bidireccional (empleado <-> empleado)
+
+    @OneToOne
+    @JoinColumn(name="tutor", unique=true)
+	public Empleado getTutor() {
+		return para;
+	}
+
+    @OneToOne(mappedBy = "tutor")
+	public Empleado getTuteloA() {
+		...
+
+
+* Con la misma clave primaria (ordenador <--> teclado)
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+	private Teclado getTeclado() {
+		...
+
+    @OneToOne(mappedBy = "teclado")
+	public Ordenador getOrdenador() {
+		...
+
+* Con un join table (empleado <--> ordenador)
+
+    @OneToOne
+    @JoinTable(name = "ordenador_empleado",
+        joinColumns = @JoinColumn(name="cif"),
+        inverseJoinColumns = @JoinColumn(name="id_ordenador")
+    )
+    public Ordenador getOrdenador() {
+    	...
+	
+	
+    @OneToOne(mappedBy = "ordenador")
+    public Empleado getEmpleado() {
+    	...
+
+
+
+HERENCIA
+========
+
+Cuatro estrategias:
+
+- una ˙nica tabla por jerarquÌa de clases
+
+- tabla por subclase
+
+- tabla por clase concreta
+
+- herencia de propiedades sin mapeo
+
+La estrategia se declara en la superclase mediante la anotaciÛn @Inheritance
+
+
+TABLA X JERARQUÕA DE CLASES
+---------------------------
+
+Se usa una √∫nica tabla para mapear todas las clases con una colummna discriminadora:
+
+@Entity
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(
+    name="planetype",
+    discriminatorType=DiscriminatorType.STRING
+)
+@DiscriminatorValue("Plane")
+public class Plane { ... }
+
+@Entity
+@DiscriminatorValue("A320")
+public class A320 extends Plane { ... }
+
+
+Los campos de las subclases no pueden ser NOT NULL
+
+
+TABLA POR SUBCLASE
+------------------
+
+Tabla para la superclase y tabla por subclase. Un objeto de una subclase estar√° mapeado en dos registros,
+uno en la tabla de la superclase con las propiedades heredadas de √©sta y otro en la tabla de la subclase.
+El enlace entre registros se establece a partir de la clave primaria:
+
+
+@Entity
+@Inheritance(strategy=InheritanceType.JOINED)
+public class Boat implements Serializable { ... }
+
+@Entity
+public class Ferry extends Boat { ... }
+
+@Entity
+@PrimaryKeyJoinColumn(name="BOAT_ID")
+public class AmericaCupClass  extends Boat { ... }
+
+
+
+El rendimiento es peor que en las otras estrategias
+
+
+TABLA POR CLASE CONCRETA
+------------------------
+
+Tabla por clase con todos los campos de la clase (heredados y propios)
+
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class Flight implements Serializable {
+
+
+HERENCIA DE PROPIEDADES SIN MAPEO
+---------------------------------
+
+Hay una superclase en la jerarqu√≠a que no tiene tabla en la que mapearse. Se utiliza @MappedSuperclass
+
+@MappedSuperclass
+public class BaseEntity {
+    @Basic
+    @Temporal(TemporalType.TIMESTAMP)
+    public Date getLastUpdate() { ... }
+    public String getLastUpdater() { ... }
+    ...
+}
+
+@Entity class Order extends BaseEntity {
+    @Id public Integer getId() { ... }
+    ...
+}	

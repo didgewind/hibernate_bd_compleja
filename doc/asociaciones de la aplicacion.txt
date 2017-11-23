@@ -1,0 +1,161 @@
+* Regalo - Empleado: 1-1 unidireccional con clave primaria externa
+* Empleado - Empleado (tutor - tutelaA): 1-1 bidireccional clave primaria externa
+* Ordenador - Teclado: 1-1 bidireccional con la misma clave primaria
+* Ordenador - Empleado: 1-1 unidireccional con join table
+* Empleado - Direccion: N-1 unidireccional sin tabla join
+* Empleado - Nomina: 1-N bidireccional sin join table
+* Evento - Sala: N-1 unidireccional con join table
+* Evento - Empleado: N-N unidireccional con join table
+* Empleado - dir_email: 1-N unidireccional como atributo (dir_email es un atributo de Empleado,
+	no es una Entidad)
+
+EJEMPLOS
+========
+
+* Regalo - Empleado: 1-1 unidireccional con clave primaria externa (ejemplo con xml, en la app
+	está hecho con anotaciones)
+
+	<class name="Regalo">
+		...
+	    <!-- one-to-one unidireccional con Empleado (FK, yo tengo la FK) -->
+	    <many-to-one name="para" lazy="false"
+	        column="para"
+	        class="Empleado"
+	        unique="true"/>
+	</class>
+
+* Empleado - Empleado (tutor - tutelaA): 1-1 bidireccional clave primaria externa
+
+	<class name="Empleado">
+		...
+	    <!-- one-to-one bidireccional con Empleado (FK, yo tengo la FK) -->
+		<many-to-one name="tutor"
+			column="tutor"
+			class="Empleado"
+			unique="true"/>
+
+	    <!-- one-to-one bidireccional con Empleado (parte sin FK) -->
+	    <!-- aquí la property-ref indica la propiedad de la clase relacionada que contiene el inverso
+	    	 de la relación -->
+	    <!-- si fuera un one-to-one bidireccional con otra tabla habría que especificar el class
+	    	 correspondiente -->
+		<one-to-one name="tuteloA"
+			property-ref="tutor"/>
+ 	</class>
+ 		
+* Ordenador - Teclado: 1-1 bidireccional con la misma clave primaria
+
+Con la misma clave primaria es necesario hacerla bidireccional y utilizar
+el generador de claves foreign
+
+	<class name="Ordenador">
+		...
+		<!-- one to one con teclado en sk (pk del ordenador) -->
+	    <one-to-one name="teclado"
+	        class="Teclado"
+	        cascade="all"/>
+	    ...
+	</class>
+
+	<class name="Teclado">
+	    <id name="id" column="id">
+	        <generator class="foreign">
+	            <param name="property">ordenador</param>
+	        </generator>
+	    </id>
+	    ...
+		<!-- one to one con ordenador en sk (pk del ordenador) -->
+		<!-- el constrained le dice a hibernate que la entidad relacionada (ordenador) existe realmente.
+			 De esta manera hibernate se evita una consulta a la tabla ordenadores para comprobar si existe
+			 la otra parte, para poner la propiedad ordenador a null o cargar un proxy -->
+	    <one-to-one name="ordenador"
+	    	class="Ordenador"
+	        constrained="true"/>
+	</class>
+
+* Ordenador - Empleado: 1-1 unidireccional con join table
+
+No es necesario especificar la clase (hibernate mira la propiedad, en este caso empleado, que es de la clase
+Empleado)
+
+	<class name="Ordenador">
+		...
+		<join table="ordenador_empleado" optional="true">
+        	<key column="id_ordenador" unique="true"/>
+		    <many-to-one name="empleado" lazy="false"
+		        column="cif"
+		        not-null="true"
+	    	    unique="true"/>
+	   	</join>
+	</class>
+
+* Empleado - Direccion: N-1 unidireccional sin tabla join
+
+	<class name="Empleado">
+		...
+		<!-- many-to-one unidireccional con Direccion (FK) -->
+	    <many-to-one name="direccion" lazy="false" cascade="save-update"
+	        column="direccion"
+	        class="Direccion"/>
+	</class>
+
+* Empleado - Nomina: 1-N bidireccional sin join table
+
+	<class name="Empleado">
+		...
+		<!-- one-to-many bidireccional con Nómina (FK)-->
+		<set name="nominas" order-by="fecha asc" inverse="true">
+		    <key column="id_empleado"
+          		not-null="true"/>
+ 		    <one-to-many class="Nomina"/>
+		</set>
+	</class>
+
+	<class name="Nomina">
+		...
+	<!--  many-to-one bidireccional con Empleado (FK)-->
+	    <many-to-one name="empleado" lazy="false"
+	        column="id_empleado"
+	        class="Empleado"/>
+
+    </class>
+
+* Evento - Sala: N-1 unidireccional con join table
+
+	<class name="Evento">
+		...
+		<!--  many-to-one unidireccional con Sala -->
+ 		<join table="evento_sala" optional="true">
+        	<key column="id_evento" unique="true"/>
+		    <many-to-one name="sala" lazy="false"
+		        column="id_sala"
+	    	    class="Sala"/>
+	   	</join>
+	</class>
+
+* Evento - Empleado: N-N unidireccional con join table
+
+	<class name="Evento">
+	...
+	<!--  many-to-many unidireccional con Empleado -->
+	    <set name="asistentes" table="empleado_evento" lazy="false">
+	        <key column="id_evento"/>
+	        <many-to-many column="cif"
+	            class="Empleado"/>
+	    </set>
+	</class>
+
+* Empleado - dir_email: 1-N unidireccional como atributo (dir_email es un atributo de Empleado,
+	no es una Entidad)
+
+	<class name="Empleado">
+	...
+	<!-- many-to-many o one-to-many (no entidad), depende de la pk de emp_dir_mail
+			(si es sólo dir_email entonces es one-to-many)-->
+        <set name="dirEmails" table="emp_dir_email">
+            <key column="cif"/>
+            <element type="string" column="dir_email"/> 
+        </set>
+	</class>
+
+

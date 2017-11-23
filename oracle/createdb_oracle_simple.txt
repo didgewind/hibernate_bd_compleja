@@ -1,0 +1,41 @@
+CREATE TABLE EMP 
+(
+  CIF VARCHAR2(9) NOT NULL 
+, NOMBRE VARCHAR2(20) 
+, APELLIDOS VARCHAR2(20) 
+, EDAD INTEGER 
+, CONSTRAINT EMP_PK PRIMARY KEY 
+  (
+    CIF 
+  )
+  ENABLE 
+);
+
+INSERT INTO emp (cif, nombre, apellidos, edad) VALUES
+('34334789H', 'Antonio', 'Martín', 23);
+INSERT INTO emp (cif, nombre, apellidos, edad) VALUES
+('21094387T', 'Juan', 'González', 40);
+INSERT INTO emp (cif, nombre, apellidos, edad) VALUES
+('01293474E', 'Isabel', 'Fuentes', 18);
+INSERT INTO emp (cif, nombre, apellidos, edad) VALUES
+('23948745F', 'Lucille', 'King', 25);
+INSERT INTO emp (cif, nombre, apellidos, edad) VALUES
+('40948574G', 'Neo', 'Preno', 12);
+
+CREATE SEQUENCE eventos_seq
+ START WITH     1000
+ INCREMENT BY   1
+ NOCACHE
+ NOCYCLE;
+ 
+CREATE TABLE eventos 
+(id INTEGER NOT NULL PRIMARY KEY,
+title VARCHAR(30),
+fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+
+CREATE TABLE empleado_evento
+(cif varchar(9) NOT NULL,
+id_evento INTEGER NOT NULL,
+FOREIGN KEY (cif) REFERENCES emp(cif),
+FOREIGN KEY (id_evento) REFERENCES eventos(id),
+PRIMARY KEY (cif, id_evento));

@@ -1,0 +1,133 @@
+drop table dir_email;
+drop table evento_sala;
+drop table empleado_evento;
+drop table ordenador_empleado;
+drop table teclados;
+drop table ordenadores;
+drop table regalos;
+drop table salas;
+drop table eventos;
+drop table nominas;
+drop table empleados;
+drop table direcciones;
+
+CREATE TABLE direcciones
+(id NUMBER(10) NOT NULL PRIMARY KEY,
+calle VARCHAR2(50),
+cp NUMBER(10));
+
+-- Generate ID using sequence and trigger
+CREATE SEQUENCE direcciones_seq START WITH 4 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER direcciones_seq_tr
+ BEFORE INSERT ON direcciones FOR EACH ROW
+ WHEN (NEW.id IS NULL)
+BEGIN
+ SELECT direcciones_seq.NEXTVAL INTO :NEW.id FROM DUAL;
+END;
+/
+
+CREATE TABLE salas
+(id VARCHAR2(5) NOT NULL PRIMARY KEY,
+nombre VARCHAR2(50),
+capacidad NUMBER(10));
+
+CREATE TABLE empleados 
+(cif VARCHAR2(9) NOT NULL, 
+nombre VARCHAR2(20), 
+apellidos VARCHAR2(20), 
+edad NUMBER(10), 
+direccion NUMBER(10),
+tutor VARCHAR2(9) UNIQUE,
+FOREIGN KEY (direccion) REFERENCES direcciones(id),
+FOREIGN KEY (tutor) REFERENCES empleados(cif),
+primary key (cif));
+
+CREATE TABLE eventos 
+(id NUMBER(10) NOT NULL PRIMARY KEY,
+title VARCHAR2(30),
+fecha TIMESTAMP(0) DEFAULT SYSTIMESTAMP);
+
+-- Generate ID using sequence and trigger
+CREATE SEQUENCE eventos_seq START WITH 4 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER eventos_seq_tr
+ BEFORE INSERT ON eventos FOR EACH ROW
+ WHEN (NEW.id IS NULL)
+BEGIN
+ SELECT eventos_seq.NEXTVAL INTO :NEW.id FROM DUAL;
+END;
+/
+
+CREATE TABLE nominas 
+(id NUMBER(10) NOT NULL PRIMARY KEY,
+fecha TIMESTAMP(0) DEFAULT SYSTIMESTAMP NOT NULL,
+bruto BINARY_DOUBLE,
+id_empleado VARCHAR2(9) NOT NULL,
+FOREIGN KEY (id_empleado) REFERENCES empleados(cif));
+
+-- Generate ID using sequence and trigger
+CREATE SEQUENCE nominas_seq START WITH 16 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER nominas_seq_tr
+ BEFORE INSERT ON nominas FOR EACH ROW
+ WHEN (NEW.id IS NULL)
+BEGIN
+ SELECT nominas_seq.NEXTVAL INTO :NEW.id FROM DUAL;
+END;
+/
+
+CREATE TABLE ordenadores 
+(id VARCHAR2(5) NOT NULL PRIMARY KEY);
+
+CREATE TABLE regalos 
+(id NUMBER(10) NOT NULL PRIMARY KEY,
+descr CLOB,
+para VARCHAR2(9) UNIQUE,
+FOREIGN KEY (para) REFERENCES empleados(cif));
+
+-- Generate ID using sequence and trigger
+CREATE SEQUENCE regalos_seq START WITH 6 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER regalos_seq_tr
+ BEFORE INSERT ON regalos FOR EACH ROW
+ WHEN (NEW.id IS NULL)
+BEGIN
+ SELECT regalos_seq.NEXTVAL INTO :NEW.id FROM DUAL;
+END;
+/
+
+CREATE TABLE teclados
+(id VARCHAR2(5) NOT NULL PRIMARY KEY,
+teclas NUMBER(10) DEFAULT 45,
+FOREIGN KEY (id) REFERENCES ordenadores(id));
+
+CREATE TABLE dir_email
+(dir_email varchar2(100) NOT NULL,
+cif varchar2(9) NOT NULL,
+FOREIGN KEY (cif) REFERENCES empleados(cif),
+PRIMARY KEY (dir_email));
+
+
+-- Tablas de relaciones
+
+CREATE TABLE empleado_evento
+(cif varchar2(9) NOT NULL,
+id_evento NUMBER(10) NOT NULL,
+FOREIGN KEY (cif) REFERENCES empleados(cif),
+FOREIGN KEY (id_evento) REFERENCES eventos(id),
+PRIMARY KEY (cif, id_evento));
+
+CREATE TABLE evento_sala
+(id_evento NUMBER(10) NOT NULL,
+id_sala varchar2(5) NOT NULL,
+FOREIGN KEY (id_evento) REFERENCES eventos(id),
+FOREIGN KEY (id_sala) REFERENCES salas(id),
+PRIMARY KEY (id_evento));
+
+CREATE TABLE ordenador_empleado
+(id_ordenador VARCHAR2(5) NOT NULL,
+cif varchar2(9) NOT NULL UNIQUE,
+FOREIGN KEY (cif) REFERENCES empleados(cif),
+FOREIGN KEY (id_ordenador) REFERENCES ordenadores(id),
+PRIMARY KEY (id_ordenador));

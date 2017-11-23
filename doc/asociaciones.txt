@@ -1,0 +1,399 @@
+YA PASADO AL DOCUMENTO APUNTES HIBERNATE PROPIOS.ODT
+
+ASOCIACIONES ENTRE ENTIDADES
+============================
+
+Las asociaciones en hibernate nos sirven para indicar cómo se representa esa asociación dentro de la clase
+correspondiente, por lo que indica también la direccionalidad.
+
+El papel del atributo inverse es fundamental cuando hablamos de relaciones bidireccionales. Hibernate necesita
+saber qué entidad de una relación bidireccional es 'el dueño' de la relación. Con esto le indicamos a hibernate
+cuándo tiene que actualizar la relación en la bd, para que no lo haga dos veces y sea redundante.
+
+Por ejemplo, en la relación many to many de abajo bidireccional entre evento y empleado, el dueño de la relación
+es Evento. Cuando actualizamos en memoria una relación evento - empleado, en código tendríamos que actualizar
+el conjunto de empleados que asisten a un evento Y el conjunto de eventos a los que asiste un empleado,
+porque la navegación es bidireccional. Esto, en la base de datos implica una única actualización, pero si no
+le decimos a hibernate que una de las entidades es la dueña de la relación, intentará realizar las dos 
+actualizaciones, lo que puede provocar problemas. Sin embargo, si especificamos inverse=true en uno de los
+mapeos, hibernate generará el código de actualización de la relación únicamente cuando persista la otra entidad.
+
+En relaciones many2many y one2one el dueño de la relación puede ser cualquiera de las dos partes. En
+relaciones one2many, el dueño debe ser la parte que contiene el atributo simple, por lo que el inverse=true debe 
+ponerse al definir el conjunto en la parte many. Como veremos más abajo en un ejemplo:
+
+	<class name="Empleado">
+		...
+		<!-- one-to-many bidireccional con Nómina (FK)-->
+		<set name="nominas" order-by="fecha asc" inverse="true">
+		    <key column="id_empleado"
+          		not-null="true"/>
+ 		    <one-to-many class="Nomina"/>
+		</set>
+	</class>
+
+
+Many to Many
+------------
+
+Genera un conjunto en la entidad fuente desde la que se navega.
+
+- Unidireccional (evento - empleado)
+
+	<class name="Evento">
+
+	...
+	<!--  many-to-many unidireccional con Empleado -->
+	    <set name="asistentes" table="empleado_evento" lazy="false">
+	        <key column="id_evento"/>
+	        <many-to-many column="cif"
+	            class="Empleado"/>
+	    </set>
+
+	</class>
+
+- Bidireccional
+
+	<class name="Empleado">
+
+	...
+	<!--  many-to-many bidireccional con Evento -->
+	    <set name="eventos" table="empleado_evento" inverse="true">
+	        <key column="cif"/>
+	        <many-to-many column="id_evento"
+	            class="Evento"/>
+	    </set>
+
+	</class>
+
+
+Many to One. 
+-----------
+
+Genera un atributo simple (no conjunto) en la entidad many, y un conjunto en la entidad one cuando es
+bidireccional.
+
+* Sin tabla join
+
+- Unidireccional (empleado - dirección)
+
+	<class name="Empleado">
+		...
+		<!-- many-to-one unidireccional con Direccion (FK) -->
+	    <many-to-one name="direccion" lazy="false" cascade="save-update"
+	        column="direccion"
+	        class="Direccion"/>
+	</class>
+
+- Bidireccional (nómina - empleado)
+
+	<class name="Nomina">
+		...
+	<!--  many-to-one bidireccional con Empleado (FK)-->
+	    <many-to-one name="empleado" lazy="false"
+	        column="id_empleado"
+	        class="Empleado"/>
+
+	</class>
+
+	<class name="Empleado">
+		...
+		<!-- one-to-many bidireccional con Nómina (FK)-->
+		<set name="nominas" order-by="fecha asc" inverse="true">
+		    <key column="id_empleado"
+          		not-null="true"/>
+ 		    <one-to-many class="Nomina"/>
+		</set>
+	</class>
+
+
+
+* Con join table (habitual cuando la relación es opcional).
+
+- Unidireccional (Evento - Sala)
+
+	<class name="Evento">
+		...
+		<!--  many-to-one unidireccional con Sala -->
+ 		<join table="evento_sala" optional="true">
+        	<key column="id_evento" unique="true"/>
+		    <many-to-one name="sala" lazy="false"
+		        column="id_sala"
+	    	    class="Sala"/>
+	   	</join>
+	</class>
+
+- Bidireccional
+
+Se declara Many to Many y se especifica unique (sucede lo mismo que con el one-to-one con fk, conceptualmente many-to-many y one-to-many
+con una join table es lo mismo)
+
+  	<class name="Sala" table="salas">
+  	...
+	    <set name="eventos" table="evento_sala" inverse="true">
+	        <key column="id_sala"/>
+	        <many-to-many column="id_evento"
+	        	unique="true"
+	            class="Evento/>
+	    </set>
+	</class>
+
+
+One to Many (Sala - Eventos)
+----------------------------
+
+* Con fk: el mismo ejemplo de Many to One bidireccional sin join table (si es unidireccional, sin el inverse=true).
+
+	<class name="Empleado">
+		...
+		<!-- one-to-many unidireccional con Nómina (FK)-->
+		<set name="nominas" order-by="fecha asc">
+		    <key column="id_empleado"
+          		not-null="true"/>
+ 		    <one-to-many class="Nomina"/>
+		</set>
+	</class>
+
+* Con join table: se declara Many to Many y se especifica unique
+
+  	<class name="Sala" table="salas">
+  	...
+	    <set name="eventos" table="evento_sala">
+	        <key column="id_sala"/>
+	        <many-to-many column="id_evento"
+	            unique="true"
+	            class="Evento/>
+	    </set>
+	</class>
+
+
+One to One
+----------
+
+En este caso, se utiliza one-to-one o many-to-one en función de si en la bd es posible una relación
+many-to-one entre las tablas (o sea, si utilizamos una foreign key, en la parte de la entidad con la
+fk sería many-to-one y en la de la entidad sin la fk sería one-to-one, porque en este último caso
+es imposible que fuera many-to-one, y si es una join table, en ambas partes es many-to-one con unique=true). 
+
+* Con clave primaria externa, es igual que Many to One pero añadiendo unique
+
+Dos ejemplos, el primero con tablas diferentes (regalo -> empleado)
+
+	<class name="Regalo">
+		...
+	    <!-- one-to-one unidireccional con Empleado (FK, yo tengo la FK) -->
+	    <many-to-one name="para" lazy="false"
+	        column="para"
+	        class="Empleado"
+	        unique="true"/>
+	</class>
+
+
+El segundo, con la misma tabla y bidireccional (empleado <-> empleado)
+
+	<class name="Empleado">
+		...
+	    <!-- one-to-one bidireccional con Empleado (FK, yo tengo la FK) -->
+		<many-to-one name="tutor"
+			column="tutor"
+			class="Empleado"
+			unique="true"/>
+
+	    <!-- one-to-one bidireccional con Empleado (parte sin FK) -->
+	    <!-- aquí la property-ref indica la propiedad de la clase relacionada que contiene el inverso
+	    	 de la relación -->
+	    <!-- si fuera un one-to-one bidireccional con otra tabla habría que especificar el class
+	    	 correspondiente -->
+		<one-to-one name="tuteloA"
+			property-ref="tutor"/>
+ 	</class>
+
+
+* Con la misma clave primaria es necesario hacerla bidireccional y utilizar
+el generador de claves foreign
+
+	<class name="Ordenador">
+		...
+		<!-- one to one con teclado en sk (pk del ordenador) -->
+	    <one-to-one name="teclado"
+	        class="Teclado"
+	        cascade="all"/>
+	    ...
+	</class>
+
+	<class name="Teclado">
+	    <id name="id" column="id">
+	        <generator class="foreign">
+	            <param name="property">ordenador</param>
+	        </generator>
+	    </id>
+	    ...
+		<!-- one to one con ordenador en sk (pk del ordenador) -->
+		<!-- el constrained le dice a hibernate que la entidad relacionada (ordenador) existe realmente.
+			 De esta manera hibernate se evita una consulta a la tabla ordenadores para comprobar si existe
+			 la otra parte, para poner la propiedad ordenador a null o cargar un proxy -->
+	    <one-to-one name="ordenador"
+	    	class="Ordenador"
+	        constrained="true"/>
+	</class>
+
+
+* Con un join table. No es necesario especificar la clase (hibernate mira la propiedad)
+
+
+	<class name="Empleado">
+		...
+		<join table="ordenador_empleado" optional="true">
+			<key column="cif" unique="true"/>
+			    <many-to-one name="ordenador" 
+				column="id_ordenador"
+				not-null="true"
+		    	    unique="true"/>
+	   	</join>
+	</class>
+	
+	
+	<class name="Ordenador">
+		...
+		<join table="ordenador_empleado" optional="true" inverse="true">
+			<key column="id_ordenador" unique="true"/>
+			    <many-to-one name="empleado" lazy="false"
+				column="cif"
+				not-null="true"
+		    	    unique="true"/>
+	   	</join>
+	</class>
+
+
+
+HERENCIA
+========
+
+Cuatro estrategias:
+
+- una única tabla por jerarquía de clases
+
+- tabla por subclase
+
+- tabla por clase concreta
+
+- polimorfismo implícito
+
+
+
+TABLA X JERARQUÍA DE CLASES
+---------------------------
+
+Se usa una única tabla para mapear todas las clases con una colummna discriminadora:
+
+<class name="Payment" table="PAYMENT">
+    <id name="id" type="long" column="PAYMENT_ID">
+        <generator class="native"/>
+    </id>
+    <discriminator column="PAYMENT_TYPE" type="string"/>
+    <property name="amount" column="AMOUNT"/>
+    ...
+    <subclass name="CreditCardPayment" discriminator-value="CREDIT">
+        <property name="creditCardType" column="CCTYPE"/>
+        ...
+    </subclass>
+    <subclass name="CashPayment" discriminator-value="CASH">
+        ...
+    </subclass>
+    <subclass name="ChequePayment" discriminator-value="CHEQUE">
+        ...
+    </subclass>
+</class>
+
+Los campos de las subclases no pueden ser NOT NULL. Vamos a tener muchos campos vacíos.
+
+
+TABLA POR SUBCLASE
+------------------
+
+Tabla para la superclase y tabla por subclase. Un objeto de una subclase estará mapeado en dos registros,
+uno en la tabla de la superclase con las propiedades heredadas de ésta y otro en la tabla de la subclase.
+El enlace entre registros se establece a partir de la clave primaria:
+
+
+<class name="Payment" table="PAYMENT">
+    <id name="id" type="long" column="PAYMENT_ID">
+        <generator class="native"/>
+    </id>
+    <property name="amount" column="AMOUNT"/>
+    ...
+    <joined-subclass name="CreditCardPayment" table="CREDIT_PAYMENT">
+        <key column="PAYMENT_ID"/>
+        <property name="creditCardType" column="CCTYPE"/>
+        ...
+    </joined-subclass>
+    <joined-subclass name="CashPayment" table="CASH_PAYMENT">
+        <key column="PAYMENT_ID"/>
+        ...
+    </joined-subclass>
+    <joined-subclass name="ChequePayment" table="CHEQUE_PAYMENT">
+        <key column="PAYMENT_ID"/>
+        ...
+    </joined-subclass>
+</class>
+
+El rendimiento es peor que en las otras estrategias, pero el almacenamiento es óptimo
+
+
+TABLA POR CLASE CONCRETA
+------------------------
+
+Tabla por clase con todos los campos de la clase (heredados y propios)
+
+<class name="Payment">
+    <id name="id" type="long" column="PAYMENT_ID">
+        <generator class="sequence"/>
+    </id>
+    <property name="amount" column="AMOUNT"/>
+    ...
+    <union-subclass name="CreditCardPayment" table="CREDIT_PAYMENT">
+        <property name="creditCardType" column="CCTYPE"/>
+        ...
+    </union-subclass>
+    <union-subclass name="CashPayment" table="CASH_PAYMENT">
+        ...
+    </union-subclass>
+    <union-subclass name="ChequePayment" table="CHEQUE_PAYMENT">
+        ...
+    </union-subclass>
+</class>
+
+Limitaciones:  el nombre de columna de una propiedad de la superclase debe ser el mismo en todas las tablas
+hijas, y no se permite el generador identity.
+
+Si la superclase es abstracta, hay que mapearla con abstract="true", y no hace falta tabla.
+
+
+POLIMORFISMO IMPLÍCITO
+----------------------
+
+Se trata la herencia en la bd como si no existiera:
+
+<class name="CreditCardPayment" table="CREDIT_PAYMENT">
+    <id name="id" type="long" column="CREDIT_PAYMENT_ID">
+        <generator class="native"/>
+    </id>
+    <property name="amount" column="CREDIT_AMOUNT"/>
+    ...
+</class>
+
+<class name="CashPayment" table="CASH_PAYMENT">
+    <id name="id" type="long" column="CASH_PAYMENT_ID">
+        <generator class="native"/>
+    </id>
+    <property name="amount" column="CASH_AMOUNT"/>
+    ...
+</class>
+
+<class name="ChequePayment" table="CHEQUE_PAYMENT">
+    <id name="id" type="long" column="CHEQUE_PAYMENT_ID">
+        <generator class="native"/>
+    </id>
+    <property name="amount" column="CHEQUE_AMOUNT"/>
+    ...
+</class>

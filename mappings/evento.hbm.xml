@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="profe.hjs.model">
+
+    <class name="Evento" table="eventos">
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        <property name="titulo" column="title"/>
+        <property name="fecha" type="timestamp"/>
+
+	<!--  many-to-many unidireccional con Empleado -->
+	    <set name="asistentes" table="empleado_evento" lazy="false">
+	        <key column="id_evento"/>
+	        <many-to-many column="cif"
+	            class="Empleado"/>
+	    </set>
+
+		<!--  many-to-one unidireccional con Sala -->
+ 		<join table="evento_sala" optional="true">
+        	<key column="id_evento" unique="true"/>
+		    <many-to-one name="sala" lazy="false"
+		        column="id_sala"
+	    	    class="Sala"/>
+	   	</join>
+    </class>
+
+</hibernate-mapping>
+

@@ -1,0 +1,222 @@
+YA PASADO AL DOCUMENTO APUNTES HIBERNATE PROPIOS.ODT
+
+* Criteria:
+===========
+
+Criteria cr = session.createCriteria(Employee.class);
+
+// To get records having salary more than 2000
+cr.add(Restrictions.gt("salary", 2000));
+
+// To get records having salary less than 2000
+cr.add(Restrictions.lt("salary", 2000));
+
+// To get records having fistName starting with zara
+cr.add(Restrictions.like("firstName", "zara%"));
+
+// Case sensitive form of the above restriction.
+cr.add(Restrictions.ilike("firstName", "zara%"));
+
+// To get records having salary in between 1000 and 2000
+cr.add(Restrictions.between("salary", 1000, 2000));
+
+// To check if the given property is null
+cr.add(Restrictions.isNull("salary"));
+
+// To check if the given property is not null
+cr.add(Restrictions.isNotNull("salary"));
+
+// To check if the given property is empty
+cr.add(Restrictions.isEmpty("salary"));
+
+// To check if the given property is not empty
+cr.add(Restrictions.isNotEmpty("salary"));
+
+ANDS Y ORS
+----------
+
+Criteria cr = session.createCriteria(Employee.class);
+
+Criterion salary = Restrictions.gt("salary", 2000);
+Criterion name = Restrictions.ilike("firstNname","zara%");
+
+// To get records matching with OR condistions
+LogicalExpression orExp = Restrictions.or(salary, name);
+cr.add( orExp );
+
+
+// To get records matching with AND conditions
+LogicalExpression andExp = Restrictions.and(salary, name);
+cr.add( andExp );
+
+List results = cr.list();
+
+
+PAGINACIÓN
+----------
+
+Criteria cr = session.createCriteria(Employee.class);
+cr.setFirstResult(1);
+cr.setMaxResults(10);
+List results = cr.list();
+
+
+ORDEN
+-----
+
+Criteria cr = session.createCriteria(Employee.class);
+// To get records having salary more than 2000
+cr.add(Restrictions.gt("salary", 2000));
+
+// To sort records in descening order
+crit.addOrder(Order.desc("salary"));
+
+// To sort records in ascending order
+crit.addOrder(Order.asc("salary"));
+
+List results = cr.list();
+
+
+ALIAS
+-----
+
+List cats = sess.createCriteria(Cat.class)
+    .createAlias("kittens", "kt")
+    .createAlias("mate", "mt")
+    .add( Restrictions.eqProperty("kt.name", "mt.name") )
+    .list();
+    
+List<Evento> eventos = sess.createCriteria(Evento.class)
+			    .createAlias("asistentes", "asis")
+			    .add( Restrictions.eq("asis.cif", "34334789H") )
+			    .list();
+			    
+
+PROYECCIONES
+------------
+
+List results = session.createCriteria(Cat.class)
+    .setProjection( Projections.rowCount() )
+    .add( Restrictions.eq("color", Color.BLACK) )
+    .list();
+
+List results = session.createCriteria(Cat.class)   
+    .setProjection( Projections.projectionList()
+        .add( Projections.rowCount() )
+        .add( Projections.avg("weight") )
+        .add( Projections.max("weight") )
+        .add( Projections.groupProperty("color") )
+    )
+    .list();	
+
+List results = session.createCriteria(Domestic.class, "cat")
+    .createAlias("kittens", "kit")
+    .setProjection( Projections.projectionList()
+        .add( Projections.property("cat.name"), "catName" )		// Añade la proyección a la lista de proyecciones y le da el alias "catName"
+        .add( Projections.property("kit.name"), "kitName" )
+    )
+    .addOrder( Order.asc("catName") )
+    .addOrder( Order.asc("kitName") )
+    .list();
+    
+List results = session.createCriteria(Person.class)
+    .add(Restrictions.eq("personName", "Frodo"))
+    .createAlias("personAddress", "pa")
+    .setProjection(Projections.property("pa.street"))
+    .list();
+
+    
+* HQL
+=====
+
+String hql = "FROM Employee"; // Clase
+Query query = session.createQuery(hql);
+List results = query.list();
+
+AS CLAUSE
+---------
+
+String hql = "FROM Employee E";
+Query query = session.createQuery(hql);
+List results = query.list();
+
+SELECT
+------
+
+String hql = "SELECT E.firstName FROM Employee E";
+Query query = session.createQuery(hql);
+List results = query.list();
+
+WHERE Y ORDER BY
+----------------
+
+String hql = "FROM Employee E WHERE E.id > 10 " +
+             "ORDER BY E.firstName DESC, E.salary DESC ";
+Query query = session.createQuery(hql);
+List results = query.list();
+
+GROUP BY
+--------
+
+String hql = "SELECT SUM(E.salary), E.firtName FROM Employee E " +
+             "GROUP BY E.firstName";
+Query query = session.createQuery(hql);
+List results = query.list();
+
+NAMED PARAMETERS
+----------------
+
+String hql = "FROM Employee E WHERE E.id = :employee_id";
+Query query = session.createQuery(hql);
+query.setParameter("employee_id",10);
+List results = query.list();
+
+UPDATE Y DELETE
+---------------
+
+String hql = "UPDATE Employee set salary = :salary "  + 
+             "WHERE id = :employee_id";
+Query query = session.createQuery(hql);
+query.setParameter("salary", 1000);
+query.setParameter("employee_id", 10);
+int result = query.executeUpdate();
+System.out.println("Rows affected: " + result);
+
+String hql = "DELETE FROM Employee "  + 
+             "WHERE id = :employee_id";
+Query query = session.createQuery(hql);
+query.setParameter("employee_id", 10);
+int result = query.executeUpdate();
+System.out.println("Rows affected: " + result);
+
+INSERT
+------
+
+String hql = "INSERT INTO Employee(firstName, lastName, salary)"  + 
+             "SELECT firstName, lastName, salary FROM old_employee";
+Query query = session.createQuery(hql);
+int result = query.executeUpdate();
+System.out.println("Rows affected: " + result);
+
+MÉTODOS AGREGADOS
+-----------------
+
+S.N.	Functions		Description
+1	avg(property name)	The average of a property's value
+2	count(property name or *)	The number of times a property occurs in the results
+3	max(property name)	The maximum value of the property values
+4	min(property name)	The minimum value of the property values
+5	sum(property name)	The sum total of the property values
+
+String hql = "SELECT count(distinct E.firstName) FROM Employee E";
+Query query = session.createQuery(hql);
+List results = query.list();
+
+PAGINACIÓN
+----------
+
+String hql = "FROM Employee";
+Query query = session.createQuery(hql);
+query.setFirstResult(1);
+query.setMaxResults(10);
+List results = query.list();
